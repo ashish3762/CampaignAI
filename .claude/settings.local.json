@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:mcp.harishgarg.com)",
+      "WebSearch",
+      "Bash(claude mcp *)",
+      "PowerShell(Get-Command claude -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-ChildItem \"$env:USERPROFILE\\\\.claude\" -Force -ErrorAction SilentlyContinue | Select-Object Name; Test-Path \"$env:USERPROFILE\\\\.claude\\\\settings.json\"; Test-Path \"$env:USERPROFILE\\\\.claude.json\")",
+      "Bash(command -v claude)",
+      "Read(//c/Users/ashish.gupta//**)",
+      "Bash(cp ~/.claude.json ~/.claude.json.pre-mcp-backup)",
+      "Bash(python -c ' *)",
+      "Bash(npm -v)",
+      "Bash(npm install *)",
+      "Bash(node -e ' *)",
+      "Bash(npx vite *)"
+    ]
+  }
+}
