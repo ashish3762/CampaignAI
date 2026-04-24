@@ -1,11 +1,24 @@
 // Per-platform benchmarks. Numbers are drawn from WordStream 2024 reports
 // and widely cited industry rules-of-thumb. Treat them as reasonable defaults,
 // not statistically rigorous. Edit with your own data when available.
-const BENCHMARKS = {
+const PLATFORM_BENCHMARKS = {
   default: { ctr: 1.0, cvr: 2.5, cpm: 12.0, roas: 3.0 },
   Meta:    { ctr: 1.1, cvr: 1.8, cpm: 11.0, roas: 2.5 },
   Google:  { ctr: 3.0, cvr: 4.0, cpm:  8.0, roas: 3.5 },
   TikTok:  { ctr: 1.5, cvr: 1.5, cpm:  7.0, roas: 2.0 },
+};
+
+// Industry-specific multipliers applied on top of the platform baseline.
+// Values > 1 mean that industry typically performs better than the platform
+// average for that metric; < 1 means worse.
+const INDUSTRY_MULTIPLIERS = {
+  'E-commerce': { ctr: 1.05, cvr: 1.10, cpm: 0.95, roas: 1.10 },
+  SaaS:         { ctr: 0.85, cvr: 0.75, cpm: 1.20, roas: 0.80 },
+  Education:    { ctr: 0.90, cvr: 0.90, cpm: 0.85, roas: 0.95 },
+  Finance:      { ctr: 0.80, cvr: 0.85, cpm: 1.30, roas: 0.90 },
+  Health:       { ctr: 0.95, cvr: 1.00, cpm: 1.05, roas: 1.00 },
+  Gaming:       { ctr: 1.15, cvr: 0.80, cpm: 0.80, roas: 0.85 },
+  Travel:       { ctr: 1.10, cvr: 0.90, cpm: 0.90, roas: 1.05 },
 };
 
 // Band widths as ratios of the platform's benchmark. Asymmetric on purpose —
@@ -25,7 +38,10 @@ const LABELS = {
   roas: { low: 'Unprofitable', avg: 'Break-even to moderate', high: 'Profitable' },
 };
 
-const safeDiv = (a, b) => (b > 0 ? a / b : 0);
+const safeDiv = (a, b) => {
+  if (!Number.isFinite(a) || !Number.isFinite(b) || b <= 0) return 0;
+  return a / b;
+};
 
 function validate(input) {
   const required = ['spend', 'impressions', 'clicks', 'conversions', 'revenue'];
@@ -61,11 +77,29 @@ function computeMetrics(input) {
   };
 }
 
-function resolveBenchmarks(platform) {
-  if (platform && BENCHMARKS[platform]) {
-    return { source: platform, values: BENCHMARKS[platform] };
+function resolveBenchmarks(platform, industry) {
+  // Start from platform baseline (or cross-industry default).
+  const base = (platform && PLATFORM_BENCHMARKS[platform])
+    ? { ...PLATFORM_BENCHMARKS[platform] }
+    : { ...PLATFORM_BENCHMARKS.default };
+  const source = platform && PLATFORM_BENCHMARKS[platform]
+    ? platform
+    : 'Cross-industry default';
+
+  // Layer industry multipliers when available.
+  const mult = industry && INDUSTRY_MULTIPLIERS[industry];
+  if (mult) {
+    base.ctr  *= mult.ctr;
+    base.cvr  *= mult.cvr;
+    base.cpm  *= mult.cpm;
+    base.roas *= mult.roas;
+    return {
+      source: `${source} × ${industry}`,
+      values: base,
+    };
   }
-  return { source: 'Cross-industry default', values: BENCHMARKS.default };
+
+  return { source, values: base };
 }
 
 function bandFor(metric, value, benchmark) {
@@ -93,10 +127,10 @@ function bandAll(metrics, benchmarks) {
 
 function computeGaps(metrics, benchmarks) {
   return {
-    ctr:  (metrics.ctr  - benchmarks.ctr)  / benchmarks.ctr  * 100,
-    cvr:  (metrics.cvr  - benchmarks.cvr)  / benchmarks.cvr  * 100,
-    cpm:  (benchmarks.cpm - metrics.cpm) / benchmarks.cpm * 100, // flipped: + = good
-    roas: (metrics.roas - benchmarks.roas) / benchmarks.roas * 100,
+    ctr:  safeDiv(metrics.ctr  - benchmarks.ctr,  benchmarks.ctr)  * 100,
+    cvr:  safeDiv(metrics.cvr  - benchmarks.cvr,  benchmarks.cvr)  * 100,
+    cpm:  safeDiv(benchmarks.cpm - metrics.cpm, benchmarks.cpm) * 100, // flipped: + = good
+    roas: safeDiv(metrics.roas - benchmarks.roas, benchmarks.roas) * 100,
   };
 }
 
@@ -311,7 +345,7 @@ function summarize(ctx, pattern) {
 export function analyze(input) {
   validate(input);
   const metrics = computeMetrics(input);
-  const { source, values: benchmarks } = resolveBenchmarks(input.platform);
+  const { source, values: benchmarks } = resolveBenchmarks(input.platform, input.industry);
   const bands = bandAll(metrics, benchmarks);
   const gaps = computeGaps(metrics, benchmarks);
 

@@ -10,8 +10,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import cors from 'cors';
 import express from 'express';
+import { ZodError } from 'zod';
 import { analyze } from './analyze.js';
 import { attachBillingRoutes } from './billing.js';
+import { AppError, ValidationError } from './errors.js';
+import { analyzeInputSchema } from './schemas.js';
+import { runScenarios } from './scenarios.js';
+import { simulate } from './simulate.js';
+import { simulateInputSchema } from './simulateSchema.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -28,13 +34,58 @@ app.get('/api/health', (_req, res) => {
   res.json({ ok: true });
 });
 
-app.post('/api/analyze', (req, res) => {
+app.post('/api/analyze', (req, res, next) => {
   try {
-    const result = analyze(req.body || {});
+    const input = analyzeInputSchema.parse(req.body || {});
+    const result = analyze(input);
     res.json(result);
   } catch (err) {
-    res.status(400).json({ error: err.message || 'Invalid input' });
+    next(err);
   }
+});
+
+app.post('/api/simulate', (req, res, next) => {
+  try {
+    const input = simulateInputSchema.parse(req.body || {});
+    const result = simulate(input);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.post('/api/scenarios', (req, res, next) => {
+  try {
+    const input = analyzeInputSchema.parse(req.body || {});
+    const result = runScenarios(input);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Error middleware — dispatches on error type instead of parsing strings.
+// ---------------------------------------------------------------------------
+app.use((err, _req, res, _next) => {
+  if (err instanceof ZodError) {
+    return res.status(400).json({
+      error: 'Invalid input',
+      issues: err.issues.map((i) => ({
+        path: i.path.join('.'),
+        message: i.message,
+      })),
+    });
+  }
+  if (err instanceof AppError) {
+    return res.status(err.status).json({ error: err.message });
+  }
+  // Domain validation (from analyze.js validate()) — still a 400.
+  if (err instanceof Error && err.message.startsWith('Invalid value')) {
+    return res.status(400).json({ error: err.message });
+  }
+  console.error('[unhandled]', err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 // Serve the built Vite bundle in single-service deploys (Render, Fly, local
