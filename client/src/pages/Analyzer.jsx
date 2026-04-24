@@ -4,6 +4,7 @@ import InputForm from '../components/InputForm.jsx';
 import Results from '../components/Results.jsx';
 import ShareBar from '../components/ShareBar.jsx';
 import UpgradeModal from '../components/UpgradeModal.jsx';
+import { AppLayout } from '../layouts/AppLayout.jsx';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { FREE_ANALYSIS_LIMIT, PaywallError, saveAnalysis } from '../lib/analyses.js';
 import { PAYWALL_ENABLED } from '../lib/features.js';
@@ -95,50 +96,35 @@ export default function Analyzer() {
   const remaining = Math.max(0, FREE_ANALYSIS_LIMIT - analysisCount);
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-5">
-          <div className="min-w-0">
-            <h1 className="text-xl font-semibold tracking-tight text-slate-900">
-              Ad Performance Analyzer
-            </h1>
-            <p className="mt-0.5 text-sm text-slate-500">
+    <AppLayout userEmail={user?.email}>
+      <main className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 py-8">
+        {/* Page header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="heading-2">Ad Performance Analyzer</h1>
+            <p className="mt-1 text-neutral-600">
               Paste your campaign numbers. Get a diagnosis and next steps in seconds.
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             {PAYWALL_ENABLED && !isPremium && (
               <button
                 onClick={() => { setUpgradeReason(null); setUpgradeOpen(true); }}
-                className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700"
+                className="btn-primary"
               >
                 Upgrade
               </button>
             )}
-            <Link
-              to="/dashboard"
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-            >
-              Dashboard
-            </Link>
-            <span
-              className="hidden max-w-[200px] truncate text-sm text-slate-600 sm:inline"
-              title={user?.email}
-            >
-              {user?.email}
-            </span>
             <button
               onClick={handleLogout}
               disabled={loggingOut}
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
+              className="btn-secondary"
             >
               {loggingOut ? 'Logging out…' : 'Log out'}
             </button>
           </div>
         </div>
-      </header>
 
-      <main className="mx-auto max-w-6xl space-y-8 px-6 py-10">
         <ModeToggle mode={mode} onChange={handleModeChange} />
         {PAYWALL_ENABLED && !isPremium && (
           <FreePlanBanner
@@ -163,18 +149,17 @@ export default function Analyzer() {
             <Results inputs={inputs} result={result} mode={resultMode} runAnalyze={runAnalyze} />
           </>
         )}
+        <footer className="text-center text-xs text-neutral-500 mt-8">
+          Benchmarks adapt to the selected platform. Select Meta, Google, or TikTok for platform-specific thresholds.
+        </footer>
       </main>
-
-      <footer className="mx-auto max-w-6xl px-6 pb-10 text-center text-xs text-slate-400">
-        Benchmarks adapt to the selected platform. Select Meta, Google, or TikTok for platform-specific thresholds.
-      </footer>
 
       <UpgradeModal
         open={upgradeOpen}
         onClose={() => setUpgradeOpen(false)}
         reason={upgradeReason}
       />
-    </div>
+    </AppLayout>
   );
 }
 
@@ -184,8 +169,8 @@ function FreePlanBanner({ remaining, onUpgrade }) {
     <div
       className={`flex flex-wrap items-center justify-between gap-3 rounded-lg px-4 py-2.5 text-sm ring-1 ${
         empty
-          ? 'bg-rose-50 text-rose-800 ring-rose-100'
-          : 'bg-slate-50 text-slate-600 ring-slate-200'
+          ? 'bg-error-50 text-error-800 ring-error-100'
+          : 'bg-neutral-50 text-neutral-600 ring-neutral-200'
       }`}
     >
       <span>
@@ -195,7 +180,7 @@ function FreePlanBanner({ remaining, onUpgrade }) {
       </span>
       <button
         onClick={onUpgrade}
-        className="rounded-md bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800"
+        className="btn-primary text-xs"
       >
         Upgrade to Pro
       </button>
@@ -212,7 +197,7 @@ function ModeToggle({ mode, onChange }) {
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="inline-flex rounded-lg bg-slate-100 p-0.5 text-sm font-medium">
+      <div className="inline-flex rounded-lg bg-neutral-100 p-0.5 text-sm font-medium">
         {options.map((o) => {
           const on = o.id === mode;
           return (
@@ -222,8 +207,8 @@ function ModeToggle({ mode, onChange }) {
               onClick={() => onChange(o.id)}
               className={`rounded-md px-4 py-1.5 transition ${
                 on
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
+                  ? 'bg-white text-neutral-900 shadow-sm'
+                  : 'text-neutral-500 hover:text-neutral-700'
               }`}
             >
               {o.label}
@@ -231,7 +216,7 @@ function ModeToggle({ mode, onChange }) {
           );
         })}
       </div>
-      <p className="text-xs text-slate-500">{current.hint}</p>
+      <p className="text-xs text-neutral-500">{current.hint}</p>
     </div>
   );
 }
@@ -241,14 +226,14 @@ function SaveStatus({ status }) {
 
   if (status === 'saving') {
     return (
-      <div className="rounded-lg bg-slate-50 px-4 py-2 text-xs text-slate-500 ring-1 ring-slate-200">
+      <div className="rounded-lg bg-neutral-50 px-4 py-2 text-xs text-neutral-500 ring-1 ring-neutral-200">
         Saving to history…
       </div>
     );
   }
   if (status === 'saved') {
     return (
-      <div className="flex items-center justify-between rounded-lg bg-emerald-50 px-4 py-2 text-xs text-emerald-700 ring-1 ring-emerald-100">
+      <div className="flex items-center justify-between rounded-lg bg-success-50 px-4 py-2 text-xs text-success-700 ring-1 ring-success-100">
         <span>Saved to your history.</span>
         <Link to="/dashboard" className="font-medium hover:underline">
           View in Dashboard →
@@ -258,14 +243,14 @@ function SaveStatus({ status }) {
   }
   if (status === 'blocked') {
     return (
-      <div className="rounded-lg bg-amber-50 px-4 py-2 text-xs text-amber-800 ring-1 ring-amber-100">
+      <div className="rounded-lg bg-warning-50 px-4 py-2 text-xs text-warning-800 ring-1 ring-warning-100">
         Not saved — free plan limit reached.
       </div>
     );
   }
   if (status?.error) {
     return (
-      <div className="rounded-lg bg-rose-50 px-4 py-2 text-xs text-rose-700 ring-1 ring-rose-100">
+      <div className="rounded-lg bg-error-50 px-4 py-2 text-xs text-error-700 ring-1 ring-error-100">
         Couldn't save this analysis: {status.error}
       </div>
     );

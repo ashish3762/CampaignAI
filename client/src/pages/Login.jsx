@@ -38,7 +38,7 @@ export default function Login() {
       footer={
         <>
           No account?{' '}
-          <Link to="/signup" className="font-medium text-slate-900 hover:underline">
+          <Link to="/signup" className="font-semibold text-primary-600 hover:text-primary-700">
             Sign up
           </Link>
         </>
@@ -53,7 +53,7 @@ export default function Login() {
           onChange={setPassword}
           autoComplete="current-password"
         />
-        {error && <p className="text-sm text-rose-600">{error}</p>}
+        {error && <p className="text-sm text-error-600">{error}</p>}
         <PrimaryButton disabled={submitting}>
           {submitting ? 'Logging in…' : 'Login'}
         </PrimaryButton>

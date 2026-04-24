@@ -41,7 +41,7 @@ export default function Signup() {
       footer={
         <>
           Already have an account?{' '}
-          <Link to="/login" className="font-medium text-slate-900 hover:underline">
+          <Link to="/login" className="font-semibold text-primary-600 hover:text-primary-700">
             Log in
           </Link>
         </>
@@ -56,8 +56,8 @@ export default function Signup() {
           onChange={setPassword}
           autoComplete="new-password"
         />
-        {error && <p className="text-sm text-rose-600">{error}</p>}
-        {notice && <p className="text-sm text-emerald-700">{notice}</p>}
+        {error && <p className="text-sm text-error-600">{error}</p>}
+        {notice && <p className="text-sm text-success-700">{notice}</p>}
         <PrimaryButton disabled={submitting}>
           {submitting ? 'Creating…' : 'Create Account'}
         </PrimaryButton>

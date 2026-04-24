@@ -5,6 +5,7 @@ import Login from './pages/Login.jsx';
 import Signup from './pages/Signup.jsx';
 import Analyzer from './pages/Analyzer.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import Benchmarks from './pages/Benchmarks.jsx';
 import PublicReport from './pages/PublicReport.jsx';
 
 export default function App() {
@@ -24,10 +25,26 @@ export default function App() {
             }
           />
           <Route
+            path="/simulator"
+            element={
+              <ProtectedRoute>
+                <Analyzer />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/dashboard"
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/benchmarks"
+            element={
+              <ProtectedRoute>
+                <Benchmarks />
               </ProtectedRoute>
             }
           />
