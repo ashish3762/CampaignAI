@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   CartesianGrid,
   Line,
@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { AppLayout } from '../layouts/AppLayout.jsx';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { listRecentAnalyses } from '../lib/analyses.js';
 
@@ -61,44 +62,25 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-5">
-          <div className="min-w-0">
-            <h1 className="text-xl font-semibold tracking-tight text-slate-900">
-              Your Campaign Performance
-            </h1>
-            <p className="mt-0.5 text-sm text-slate-500">
+    <AppLayout userEmail={user?.email}>
+      <main className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 py-8">
+        {/* Page header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="heading-2">Your Campaign Performance</h1>
+            <p className="mt-1 text-neutral-600">
               A rolling log of your recent analyses and how they're trending.
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-3">
-            <Link
-              to="/"
-              className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800"
-            >
-              New analysis
-            </Link>
-            <span
-              className="hidden max-w-[200px] truncate text-sm text-slate-600 sm:inline"
-              title={user?.email}
-            >
-              {user?.email}
-            </span>
-            <button
-              onClick={handleLogout}
-              disabled={loggingOut}
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
-            >
-              {loggingOut ? 'Logging out…' : 'Log out'}
-            </button>
-          </div>
+          <Link
+            to="/simulator"
+            className="btn-primary"
+          >
+            New analysis
+          </Link>
         </div>
-      </header>
-
-      <main className="mx-auto max-w-6xl space-y-8 px-6 py-10">
         {error && (
-          <div className="rounded-lg bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-100">
+          <div className="rounded-lg bg-error-50 px-4 py-3 text-sm text-error-700 ring-1 ring-error-100">
             {error}
           </div>
         )}
@@ -126,7 +108,7 @@ export default function Dashboard() {
           </>
         )}
       </main>
-    </div>
+    </AppLayout>
   );
 }
 
@@ -134,22 +116,22 @@ export default function Dashboard() {
 
 function LoadingState() {
   return (
-    <div className="rounded-2xl bg-white p-8 text-sm text-slate-500 shadow-sm ring-1 ring-slate-200">
-      Loading your analyses…
+    <div className="card">
+      <p className="text-neutral-600">Loading your analyses…</p>
     </div>
   );
 }
 
 function EmptyState() {
   return (
-    <div className="rounded-2xl bg-white p-10 text-center shadow-sm ring-1 ring-slate-200">
-      <h2 className="text-base font-semibold text-slate-900">No analyses yet</h2>
-      <p className="mt-1 text-sm text-slate-500">
+    <div className="card text-center">
+      <h2 className="text-lg font-semibold text-neutral-900">No analyses yet</h2>
+      <p className="mt-1 text-sm text-neutral-600">
         Run your first analysis to start building history.
       </p>
       <Link
-        to="/"
-        className="mt-5 inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800"
+        to="/simulator"
+        className="mt-5 btn-primary inline-flex"
       >
         Run an analysis
       </Link>
@@ -349,9 +331,9 @@ function remapStoredIssue(stored) {
 // a full panel tint — keeps the page calm and pushes attention to text.
 
 const INSIGHT_THEME = {
-  down:    { border: 'border-rose-500',   tint: 'bg-rose-50/60',  label: 'text-rose-700',  confidence: 'High' },
-  warn:    { border: 'border-amber-500',  tint: 'bg-amber-50/60', label: 'text-amber-700', confidence: 'Medium' },
-  neutral: { border: 'border-emerald-500', tint: 'bg-emerald-50/60', label: 'text-emerald-700', confidence: 'High' },
+  down:    { border: 'border-error-500',   tint: 'bg-error-50/60',  label: 'text-error-700',  confidence: 'High' },
+  warn:    { border: 'border-warning-500',  tint: 'bg-warning-50/60', label: 'text-warning-700', confidence: 'Medium' },
+  neutral: { border: 'border-success-500', tint: 'bg-success-50/60', label: 'text-success-700', confidence: 'High' },
 };
 
 function TrendInsight({ rows }) {
@@ -374,7 +356,7 @@ function TrendInsight({ rows }) {
 
   return (
     <section
-      className={`group rounded-xl border border-slate-200 border-l-4 ${theme.border} bg-white p-6 shadow-sm transition hover:shadow-md sm:p-8`}
+      className={`group rounded-xl border border-neutral-200 border-l-4 ${theme.border} bg-white p-6 shadow-sm transition hover:shadow-md sm:p-8`}
     >
       {/* Very subtle tinted header band */}
       <div className={`-mx-6 -mt-6 mb-6 rounded-t-[10px] ${theme.tint} px-6 py-2 sm:-mx-8 sm:-mt-8 sm:px-8`}>
@@ -391,18 +373,18 @@ function TrendInsight({ rows }) {
         </div>
       </div>
 
-      <p className="text-xl font-semibold tracking-tight text-slate-900 sm:text-[1.35rem]">
+      <p className="text-xl font-semibold tracking-tight text-neutral-900 sm:text-[1.35rem]">
         {headline}
       </p>
-      {body && <p className="mt-2 text-sm leading-relaxed text-slate-600">{body}</p>}
+      {body && <p className="mt-2 text-sm leading-relaxed text-neutral-600">{body}</p>}
 
-      <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+      <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500">
         <span className="inline-flex items-center gap-1.5">
-          <span className={`h-1.5 w-1.5 rounded-full ${confidence === 'Medium' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-          Insight confidence: <span className="font-medium text-slate-700">{confidence}</span>
-          {confidenceNote && <span className="text-slate-400"> ({confidenceNote})</span>}
+          <span className={`h-1.5 w-1.5 rounded-full ${confidence === 'Medium' ? 'bg-warning-500' : 'bg-success-500'}`} />
+          Insight confidence: <span className="font-medium text-neutral-700">{confidence}</span>
+          {confidenceNote && <span className="text-neutral-400"> ({confidenceNote})</span>}
         </span>
-        <span className="text-slate-300">·</span>
+        <span className="text-neutral-300">·</span>
         <span>Based on last {comparableCount} {comparableCount === 1 ? 'analysis' : 'analyses'} in this context</span>
       </div>
     </section>
@@ -422,13 +404,13 @@ function ActionBlock({ rows }) {
   const actions = getActions(primaryIssue, type);
 
   return (
-    <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition hover:shadow-md sm:p-8">
+    <section className="card hover:shadow-modern transition">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold text-slate-900">
+        <h2 className="text-sm font-semibold text-neutral-900">
           {type === 'planned' ? 'Before you launch' : 'What to focus on today'}
         </h2>
         {primaryIssue && (
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-neutral-500">
             {type === 'planned'
               ? 'Forward-looking — based on projected inputs'
               : 'Derived from your biggest issue'}
@@ -441,9 +423,9 @@ function ActionBlock({ rows }) {
           {actions.map((a, i) => (
             <li
               key={i}
-              className="flex items-start gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-700 transition hover:bg-slate-50"
+              className="flex items-start gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-700 transition hover:bg-neutral-50"
             >
-              <span className="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-slate-900 text-[11px] font-semibold text-white">
+              <span className="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary-500 text-[11px] font-semibold text-white">
                 {i + 1}
               </span>
               <span className="leading-relaxed">{a}</span>
@@ -451,7 +433,7 @@ function ActionBlock({ rows }) {
           ))}
         </ol>
       ) : (
-        <p className="mt-3 text-sm text-slate-600">
+        <p className="mt-3 text-sm text-neutral-600">
           No major issues detected. Continue monitoring performance.
         </p>
       )}
@@ -463,13 +445,13 @@ function ActionBlock({ rows }) {
 
 function ComparisonCard({ rows }) {
   return (
-    <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
-      <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+    <section className="card">
+      <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
         Since last analysis
       </h2>
 
       {rows.length < 2 ? (
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="mt-2 text-sm text-neutral-500">
           Run another analysis to see trends.
         </p>
       ) : isComparable(rows[0], rows[1]) ? (
@@ -486,7 +468,7 @@ function ComparableView({ current, previous }) {
   return (
     <>
       {scope && (
-        <p className="mt-1 text-xs text-slate-500">Compared within {scope}</p>
+        <p className="mt-1 text-xs text-neutral-500">Compared within {scope}</p>
       )}
       <div className="mt-4 grid grid-cols-3 gap-4">
         <Delta label="ROAS" current={current.roas} previous={previous.roas} suffix="x" digits={2} />
@@ -513,7 +495,7 @@ function MismatchView({ current, previous }) {
 
   return (
     <>
-      <div className="mt-3 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800 ring-1 ring-amber-100">
+      <div className="mt-3 rounded-lg bg-warning-50 px-4 py-3 text-sm text-warning-800 ring-1 ring-warning-100">
         {message}
       </div>
       <div className="mt-4 grid grid-cols-3 gap-4">
@@ -521,7 +503,7 @@ function MismatchView({ current, previous }) {
         <DualValue label="CTR"  current={current.ctr}  previous={previous.ctr}  suffix="%" />
         <DualValue label="CVR"  current={current.cvr}  previous={previous.cvr}  suffix="%" />
       </div>
-      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-500">
         <span>Current: {scope(current)}</span>
         <span>Previous: {scope(previous)}</span>
       </div>
@@ -531,16 +513,16 @@ function MismatchView({ current, previous }) {
 
 function DualValue({ label, current, previous, suffix = '' }) {
   return (
-    <div className="rounded-xl bg-slate-50 p-5">
-      <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</div>
+    <div className="rounded-xl bg-neutral-50 p-5">
+      <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{label}</div>
       <dl className="mt-2 space-y-0.5 text-sm">
         <div className="flex items-baseline justify-between">
-          <dt className="text-slate-500">Current</dt>
-          <dd className="font-semibold text-slate-900">{fmt(current, suffix)}</dd>
+          <dt className="text-neutral-500">Current</dt>
+          <dd className="font-semibold text-neutral-900">{fmt(current, suffix)}</dd>
         </div>
         <div className="flex items-baseline justify-between">
-          <dt className="text-slate-500">Previous</dt>
-          <dd className="text-slate-600">{fmt(previous, suffix)}</dd>
+          <dt className="text-neutral-500">Previous</dt>
+          <dd className="text-neutral-600">{fmt(previous, suffix)}</dd>
         </div>
       </dl>
     </div>
@@ -577,21 +559,21 @@ function Delta({ label, current, previous, suffix = '', digits = 2 }) {
   const flat = Math.abs(pct) < 0.5 || prev === 0;
 
   const tone = flat
-    ? 'text-slate-500'
+    ? 'text-neutral-500'
     : up
-    ? 'text-emerald-600'
-    : 'text-rose-600';
+    ? 'text-success-600'
+    : 'text-error-600';
 
   return (
-    <div className="rounded-xl bg-slate-50 p-5">
-      <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
+    <div className="rounded-xl bg-neutral-50 p-5">
+      <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{label}</div>
+      <div className="mt-2 text-2xl font-semibold tracking-tight text-neutral-900">
         {cur.toFixed(digits)}{suffix}
       </div>
       <div className={`mt-1 text-sm font-medium ${tone}`}>
         {flat ? '— flat' : `${up ? '↑' : '↓'} ${Math.abs(pct).toFixed(0)}%`}
       </div>
-      <div className="mt-0.5 text-xs text-slate-500">
+      <div className="mt-0.5 text-xs text-neutral-500">
         {flat ? 'No material change' : interpretDelta(label, pct)}
       </div>
     </div>
@@ -663,11 +645,11 @@ function TrendChart({ rows }) {
 
   if (data.length < 2) {
     return (
-      <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <section className="card">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
           Metric trend
         </h2>
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="mt-2 text-sm text-neutral-500">
           Run at least two analyses in the same context to see a trend line.
         </p>
       </section>
@@ -675,17 +657,17 @@ function TrendChart({ rows }) {
   }
 
   return (
-    <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+    <section className="card">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
             Metric trend
           </h2>
           {scope && (
-            <p className="mt-0.5 text-xs text-slate-500">{scope} · last {data.length} analyses</p>
+            <p className="mt-0.5 text-xs text-neutral-500">{scope} · last {data.length} analyses</p>
           )}
         </div>
-        <div className="inline-flex rounded-lg bg-slate-100 p-0.5 text-xs font-medium">
+        <div className="inline-flex rounded-lg bg-neutral-100 p-0.5 text-xs font-medium">
           {METRIC_OPTIONS.map((m) => {
             const on = m.key === metric;
             return (
@@ -694,8 +676,8 @@ function TrendChart({ rows }) {
                 onClick={() => setMetric(m.key)}
                 className={`rounded-md px-3 py-1.5 transition ${
                   on
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700'
+                    ? 'bg-white text-neutral-900 shadow-sm'
+                    : 'text-neutral-500 hover:text-neutral-700'
                 }`}
                 style={on ? { color: m.color } : undefined}
               >
@@ -707,22 +689,22 @@ function TrendChart({ rows }) {
       </div>
 
       {summary && (
-        <p className="mt-3 text-sm font-medium text-slate-700">{summary}</p>
+        <p className="mt-3 text-sm font-medium text-neutral-700">{summary}</p>
       )}
 
       <div className="mt-4 h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-            <CartesianGrid vertical={false} stroke="#e2e8f0" strokeDasharray="3 3" />
+            <CartesianGrid vertical={false} stroke="#cbd5e1" strokeDasharray="3 3" />
             <XAxis
               dataKey="dateLabel"
-              stroke="#94a3b8"
+              stroke="#64748b"
               fontSize={11}
               tickLine={false}
               axisLine={{ stroke: '#e2e8f0' }}
             />
             <YAxis
-              stroke="#94a3b8"
+              stroke="#64748b"
               fontSize={11}
               tickLine={false}
               axisLine={false}
@@ -741,7 +723,7 @@ function TrendChart({ rows }) {
                 `${Number(value).toFixed(active.digits)}${active.suffix}`,
                 active.label,
               ]}
-              labelStyle={{ color: '#64748b', fontSize: 11 }}
+              labelStyle={{ color: '#475569', fontSize: 11 }}
             />
             <Line
               type="monotone"
@@ -763,17 +745,17 @@ function TrendChart({ rows }) {
 
 function RecentTable({ rows }) {
   return (
-    <section className="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-      <div className="flex items-start justify-between gap-3 px-6 pt-5 sm:px-8">
+    <section className="card">
+      <div className="flex items-start justify-between gap-3 mb-4">
         <div>
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
             Recent analyses
           </h2>
-          <p className="mt-0.5 text-xs text-slate-500">
+          <p className="mt-0.5 text-xs text-neutral-500">
             Issues shown below are based on each individual analysis.
           </p>
         </div>
-        <span className="pt-0.5 text-xs text-slate-400">
+        <span className="text-xs text-neutral-400">
           Showing {rows.length} {rows.length === 1 ? 'entry' : 'entries'}
         </span>
       </div>
@@ -806,14 +788,14 @@ function RecentTable({ rows }) {
                 >
                   <Td>
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-slate-800">{formatDate(r.created_at)}</span>
+                      <span className="font-medium text-neutral-800">{formatDate(r.created_at)}</span>
                       {isLatest && (
-                        <span className="rounded-full bg-slate-900 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                        <span className="rounded-full bg-primary-500 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
                           Latest
                         </span>
                       )}
                     </div>
-                    <div className="mt-0.5 text-xs text-slate-400">
+                    <div className="mt-0.5 text-xs text-neutral-400">
                       {formatContextScope(r) || '—'}
                     </div>
                   </Td>
@@ -840,7 +822,7 @@ function Th({ children, className = '' }) {
   return <th className={`px-6 py-2.5 font-medium sm:px-8 ${className}`}>{children}</th>;
 }
 function Td({ children, className = '' }) {
-  return <td className={`px-6 py-3 text-slate-700 sm:px-8 ${className}`}>{children}</td>;
+  return <td className={`px-6 py-3 text-neutral-700 sm:px-8 ${className}`}>{children}</td>;
 }
 
 // -- Badges ------------------------------------------------------------------
@@ -848,22 +830,22 @@ function Td({ children, className = '' }) {
 // Soft-color palette per primary issue. Shared between the insight hero badge
 // and the table row chips via IssueChip → toneFromLabel.
 const ISSUE_TONES = {
-  conversion:  'bg-red-50 text-red-700',      // landing / offer
-  creative:    'bg-orange-50 text-orange-700', // creative fatigue
-  cost:        'bg-yellow-50 text-yellow-800', // auction / economics
-  funnel:      'bg-rose-100 text-rose-800',    // most severe
-  none:        'bg-emerald-50 text-emerald-700',
+  conversion:  'bg-error-50 text-error-700',      // landing / offer
+  creative:    'bg-warning-50 text-warning-700', // creative fatigue
+  cost:        'bg-warning-50 text-warning-800', // auction / economics
+  funnel:      'bg-error-100 text-error-800',    // most severe
+  none:        'bg-success-50 text-success-700',
 };
 
 function toneFromLabel(label) {
-  if (!label) return 'bg-slate-100 text-slate-600';
+  if (!label) return 'bg-neutral-100 text-neutral-600';
   const l = label.toLowerCase();
   if (l.includes('funnel'))       return ISSUE_TONES.funnel;
   if (l.includes('conversion'))   return ISSUE_TONES.conversion;
   if (l.includes('creative'))     return ISSUE_TONES.creative;
   if (l.includes('cpm') || l.includes('cost') || l.includes('economics')) return ISSUE_TONES.cost;
   if (l.includes('no major'))     return ISSUE_TONES.none;
-  return 'bg-slate-100 text-slate-600';
+  return 'bg-neutral-100 text-neutral-600';
 }
 
 function IssueBadge({ label, primaryIssue }) {
@@ -876,7 +858,7 @@ function IssueBadge({ label, primaryIssue }) {
 }
 
 function IssueChip({ issue }) {
-  if (!issue) return <span className="text-slate-400">—</span>;
+  if (!issue) return <span className="text-neutral-400">—</span>;
   return (
     <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${toneFromLabel(issue)}`}>
       {issue}
@@ -908,7 +890,7 @@ function TypeFilter({ value, onChange, counts }) {
   ];
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="inline-flex rounded-lg bg-slate-100 p-0.5 text-sm font-medium">
+      <div className="inline-flex rounded-lg bg-neutral-100 p-0.5 text-sm font-medium">
         {options.map((o) => {
           const on = o.id === value;
           return (
@@ -917,13 +899,13 @@ function TypeFilter({ value, onChange, counts }) {
               type="button"
               onClick={() => onChange(o.id)}
               className={`flex items-center gap-2 rounded-md px-3.5 py-1.5 transition ${
-                on ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                on ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:text-neutral-700'
               }`}
             >
               <span>{o.label}</span>
               <span
                 className={`rounded-full px-1.5 text-[10px] font-semibold ${
-                  on ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'
+                  on ? 'bg-primary-500 text-white' : 'bg-neutral-200 text-neutral-600'
                 }`}
               >
                 {o.count}

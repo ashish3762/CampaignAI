@@ -1,29 +1,56 @@
+import { Logo } from '../components/Logo';
+
 export function AuthLayout({ title, subtitle, children, footer }) {
   return (
-    <div className="grid min-h-screen place-items-center bg-slate-50 px-6">
-      <div className="w-full max-w-sm">
-        <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
-          <h1 className="text-xl font-semibold tracking-tight text-slate-900">{title}</h1>
-          {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
-          <div className="mt-6">{children}</div>
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-neutral-50 to-primary-50 px-4 py-8 flex flex-col justify-center">
+      <div className="grid place-items-center min-h-screen">
+        <div className="w-full max-w-md">
+          {/* Logo Section */}
+          <div className="mb-8 text-center">
+            <div className="flex justify-center mb-6">
+              <div className="h-12 w-12 rounded-full bg-primary-500 flex items-center justify-center">
+                <img
+                  src="/logo.svg"
+                  alt="CampaignAI"
+                  className="h-8 w-8"
+                />
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold text-neutral-900">{title}</h1>
+            {subtitle && (
+              <p className="mt-2 text-neutral-600">{subtitle}</p>
+            )}
+          </div>
+
+          {/* Card */}
+          <div className="card">
+            <div className="mt-6">{children}</div>
+          </div>
+
+          {/* Footer */}
+          {footer && (
+            <p className="mt-6 text-center text-sm text-neutral-600">
+              {footer}
+            </p>
+          )}
         </div>
-        {footer && <p className="mt-4 text-center text-sm text-slate-500">{footer}</p>}
       </div>
     </div>
   );
 }
 
-export function Field({ label, type = 'text', value, onChange, autoComplete, required = true }) {
+export function Field({ label, type = 'text', value, onChange, autoComplete, required = true, placeholder = '' }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-medium text-slate-600">{label}</span>
+      <span className="mb-2 block text-sm font-medium text-neutral-700">{label}</span>
       <input
         type={type}
         required={required}
         autoComplete={autoComplete}
+        placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10"
+        className="w-full rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-neutral-900 shadow-sm-modern outline-none transition placeholder:text-neutral-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
       />
     </label>
   );
@@ -34,7 +61,7 @@ export function PrimaryButton({ children, disabled, type = 'submit' }) {
     <button
       type={type}
       disabled={disabled}
-      className="inline-flex w-full items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+      className="inline-flex w-full items-center justify-center rounded-lg bg-primary-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm-modern transition hover:bg-primary-600 active:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-primary-500"
     >
       {children}
     </button>

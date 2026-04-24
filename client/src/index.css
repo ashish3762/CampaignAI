@@ -8,8 +8,26 @@
     -webkit-font-smoothing: antialiased;
   }
   body {
-    @apply bg-slate-50 text-slate-900;
+    @apply bg-neutral-50 text-neutral-900;
   }
+
+  /* Form elements styling */
+  input,
+  textarea,
+  select {
+    @apply bg-white border border-neutral-200 rounded-lg px-4 py-2.5 text-neutral-900 placeholder-neutral-500 transition-colors;
+    @apply focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100;
+  }
+
+  input[type='checkbox'],
+  input[type='radio'] {
+    @apply w-4 h-4 rounded cursor-pointer;
+  }
+
+  label {
+    @apply text-sm font-medium text-neutral-700;
+  }
+
   /* Hide number input spinners for a cleaner look */
   input[type='number']::-webkit-outer-spin-button,
   input[type='number']::-webkit-inner-spin-button {
@@ -18,5 +36,51 @@
   }
   input[type='number'] {
     -moz-appearance: textfield;
+  }
+}
+
+@layer components {
+  /* Button components */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-2.5 bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-600 active:bg-primary-700 transition-colors shadow-sm-modern;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-2.5 bg-neutral-100 text-primary-500 font-semibold rounded-lg hover:bg-neutral-200 active:bg-neutral-300 transition-colors;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center px-6 py-2.5 text-primary-500 font-semibold rounded-lg hover:bg-primary-50 active:bg-primary-100 transition-colors;
+  }
+
+  /* Card component */
+  .card {
+    @apply bg-white rounded-xl border border-neutral-200 shadow-sm-modern p-6;
+  }
+
+  .card-hover {
+    @apply card hover:shadow-modern transition-shadow;
+  }
+
+  /* Section wrapper */
+  .section {
+    @apply space-y-6;
+  }
+
+  /* Typography helpers */
+  .heading-1 {
+    @apply text-3xl font-bold text-neutral-900;
+  }
+
+  .heading-2 {
+    @apply text-2xl font-bold text-neutral-900;
+  }
+
+  .heading-3 {
+    @apply text-xl font-semibold text-neutral-900;
+  }
+
+  .text-muted {
+    @apply text-neutral-600;
   }
 }
